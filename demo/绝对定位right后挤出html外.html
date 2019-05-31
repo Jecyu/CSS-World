@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>overflow子容器导致页面挤出 body</title>
+    <style>
+      body,
+      html {
+        height: 100%;
+        width: 100%;
+      }
+      .main-page {
+        position: relative;
+        /* width: calc(100% - 300px); */
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      .header {
+        height: 4rem;
+        width: 100%;
+        background: #75ebd7;
+      }
+      .parent1 {
+        position: absolute;
+        left: 0;
+        width: 500px;
+        height: 500px;
+        border: 1px solid rosybrown;
+        overflow: scroll;
+      }
+      .child1 {
+        width: 10000px;
+        height: 200px;
+        margin: 20px;
+        background: orange;
+      }
+      .parent2 {
+        position: absolute; /* fixed 同理*/
+        right: -300px;
+        /* transform同理 */
+        /* transform: translateX(300px); */
+        width: 300px;
+        top: 90px;
+        height: 500px;
+        border: 1px solid rosybrown;
+        background: #a154e0;
+      }
+      .content {
+        position: relative;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-page">
+      <div class="header">header</div>
+      <div class="content">
+        <div class="parent1">
+          parent1
+          <div class="child1">child1,我可以滚动</div>
+        </div>
+        <div class="parent2">parent2</div>
+      </div>
+    </div>
+  </body>
+  <script>
+    // 问题：定位绝对，负右移。在窗口调整大小移动滚动条时，绝对定位的DIV移动到HTML的右边界外，出现滚动条
+    // 输出：去除滚动条，并且影藏
+    // 分析：main-page 设置了 width: 100%，parent2 设置了绝对定位，并且 right: -300px，这时整个页面超出body，出现滚动问题
+    // 原因：虽然设置 parent2 设置了绝对定位，跳出文档流，但是还在 body 中，与 main-page 同级占用 body，而main-page 是100%的body 宽度，所以 body 再也装不进 parent2 了, 滚动条来自 根 html 标签
+    // 解决：
+    // （不采用）方案一：main-page: width: calc(100% - 300px)，这样会导致其他容器如 header 的100% 长度有影响，也不满足隐藏 parent2 的效果
+    // 方案二：给 main-page 设置 overflow: hidden，并且
+    // body,html { height: 100%; width: 100%; } 即可
+  </script>
+</html>
